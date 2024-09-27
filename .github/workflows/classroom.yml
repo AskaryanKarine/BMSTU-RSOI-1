@@ -11,9 +11,24 @@ jobs:
     name: Autograding
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/person-app:latest -f ./deploy/Dockerfile .      
+
+      - name: Login to GitHub Container Registry
+        env:
+          CR_PAT: ${{ secrets.REGISTRY_TOKEN }}
+        run: echo "${{ secrets.CR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Push Docker image to GitHub Container Registry
+        run: |
+          docker push ghcr.io/${{ github.repository }}/person-app:latest
+      
+      
+      
 
       # TODO build, test and deploy project
 
