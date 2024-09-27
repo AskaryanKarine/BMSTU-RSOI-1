@@ -11,7 +11,7 @@ jobs:
     name: Unit Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: run tests
         run: go test ./internal/...
@@ -27,7 +27,7 @@ jobs:
         with:
           string: ${{ github.repository }}
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Login to GitHub Container Registry
         run: docker login ghcr.io -u ${{ github.actor }} --password ${{ secrets.REGISTRY_TOKEN }}
@@ -45,12 +45,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - id: string
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
+
+      - uses: actions/checkout@v4
 
       - name: Connect to remote server
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          USER_REGISTRY: ${{ github.actor }}
+          PASS_REGISTRY: ${{ secrets.REGISTRY_TOKEN }}
+          ACTION_REGISTRY: ${{ steps.string.outputs.lowercase }}
         with:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_KEY }}
-          script: whoami
+          script: |
+            docker login ghcr.io -u $USER_REGISTRY --password $PASS_REGISTRY
+            (docker stop person-app && docker rm person-app || true) && \
+            docker run -d -p 8000:8000 --name person-app --env-file .env --restart=always ghcr.io/$ACTION_REGISTRY/person-app:latest
