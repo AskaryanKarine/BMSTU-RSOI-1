@@ -11,12 +11,17 @@ jobs:
     name: Autograding
     runs-on: ubuntu-latest
     steps:
+      - id: string
+        uses: ASzc/change-string-case-action@v1
+        with:
+          string: ${{ github.repository }}
+
       - name: Checkout repo
         uses: actions/checkout@v3
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository }}/person-app:latest -f ./deploy/Dockerfile .      
+          docker build -t ghcr.io/${{ steps.string.outputs.lowercase }}/person-app:latest -f ./deploy/Dockerfile .      
 
       - name: Login to GitHub Container Registry
         env:
@@ -25,7 +30,7 @@ jobs:
 
       - name: Push Docker image to GitHub Container Registry
         run: |
-          docker push ghcr.io/${{ github.repository }}/person-app:latest
+          docker push ghcr.io/${{ steps.string.outputs.lowercase }}/person-app:latest
       
       
       
