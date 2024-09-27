@@ -36,6 +36,8 @@ func New(pr personRepository) *Server {
 		AllowCredentials: true,
 	}))
 
+	s.echo.Use(s.logRequest)
+
 	api := s.echo.Group("/api/v1")
 
 	persons := api.Group("/persons")
@@ -67,5 +69,18 @@ func (s *Server) Run(port int) {
 	log.Info("server shutting down")
 	if err := s.echo.Server.Shutdown(ctx); err != nil {
 		log.Fatal(err)
+	}
+}
+
+func (s *Server) logRequest(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		err := next(c)
+		logStr := fmt.Sprintf("%s %s %d", c.Request().Method, c.Request().RequestURI, c.Response().Status)
+		if err != nil {
+			logStr = fmt.Sprintf("%s, err: %v", logStr, err)
+			log.Error(logStr)
+		}
+		log.Info(logStr)
+		return err
 	}
 }

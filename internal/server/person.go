@@ -2,6 +2,7 @@ package server
 
 import (
 	"errors"
+	"fmt"
 	"github.com/AskaryanKarine/BMSTU-ds-1/internal/models"
 	"github.com/charmbracelet/log"
 	"github.com/labstack/echo/v4"
@@ -46,6 +47,7 @@ func (s *Server) createPerson(c echo.Context) error {
 		})
 	}
 
+	c.Response().Header().Set(echo.HeaderLocation, fmt.Sprintf("%s/%d", c.Request().RequestURI, req.ID))
 	return c.JSON(http.StatusCreated, echo.Map{})
 }
 
