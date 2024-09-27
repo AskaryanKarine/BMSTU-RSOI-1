@@ -23,7 +23,7 @@ jobs:
       - test
     steps:
       - id: string
-        uses: ASzc/change-string-case-action@v1
+        uses: ASzc/change-string-case-action@v6
         with:
           string: ${{ github.repository }}
 
@@ -46,7 +46,7 @@ jobs:
     needs: build
     steps:
       - id: string
-        uses: ASzc/change-string-case-action@v1
+        uses: ASzc/change-string-case-action@v6
         with:
           string: ${{ github.repository }}
 
