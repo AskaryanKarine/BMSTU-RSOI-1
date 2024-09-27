@@ -7,11 +7,11 @@ RUN go mod download
 
 COPY .. ./
 
-RUN go build -o ./build/main ./cmd/person/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /go/bin/main ./cmd/person/main.go
 
-FROM alpine:latest AS production
+FROM alpine:latest AS app
 
-COPY --from=builder /app/build/main ./build/main
+COPY --from=builder /go/bin/main ./go/
 
 EXPOSE 8000
-ENTRYPOINT ./build/main
+CMD ./go/main
