@@ -63,7 +63,5 @@ jobs:
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.REMOTE_KEY }}
           script: |
-            (echo "$PASS_REGISTRY" | docker login ghcr.io -u "$USER_REGISTRY" --password-stdin) && \
-            docker pull eghcr.io/$ACTION_REGISTRY/person-app:latest && \
-            (docker stop person-app && docker rm person-app || true) && \
-            docker run -d -p 8000:8000 --name person-app --env-file .env --restart=always ghcr.io/$ACTION_REGISTRY/person-app:latest
+            echo $USER_REGISTRY
+            echo $ACTION_REGISTRY
