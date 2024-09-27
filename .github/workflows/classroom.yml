@@ -7,9 +7,21 @@ on:
     branches:
       - master
 jobs:
-  build:
-    name: Autograding
+  test:
+    name: Unit Test
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: run tests
+        run: go test ./internal/...
+
+  build:
+    name: Build - Deploy Docker image to Registry
+    runs-on: ubuntu-latest
+    needs:
+      - test
     steps:
       - id: string
         uses: ASzc/change-string-case-action@v1
@@ -29,30 +41,3 @@ jobs:
       - name: Push Docker image to GitHub Container Registry
         run: |
           docker push ghcr.io/${{ steps.string.outputs.lowercase }}/person-app:latest
-      
-      
-      
-
-      # TODO build, test and deploy project
-
-      - name: Run API Tests
-        uses: matt-ball/newman-action@master
-        with:
-          collection: postman/[inst] Lab1.postman_collection.json
-          environment: postman/[inst][heroku] Lab1.postman_environment.json
-          delayRequest: 100
-          reporters: '[ "cli" ]'
-
-      - name: Autograding
-        uses: education/autograding@v1
-        continue-on-error: true
-
-      - name: Github auto grader mark
-        uses: Romanow/google-sheet-autograder-marker@v1.0
-        with:
-          google_token: ${{secrets.GOOGLE_API_KEY}}
-          sheet_id: "1xkgjUX6Qmk7rdJG-QPOToav-HWWtthJjnShIKnw3oIY"
-          homework_number: 1
-          user_column: 'D'
-          column_offset: 'F'
-          mark: "'+"
